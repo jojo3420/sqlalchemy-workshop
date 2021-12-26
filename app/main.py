@@ -4,9 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from devtools import debug
 
-# from app import models
-# from app import api
+from app import models
 from app import database
+
+# from app import api
+
 
 app = FastAPI()
 
@@ -25,14 +27,13 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
-    from app.database import engine
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
-    database.Base.metadata.create_all(bind=engine)
+    models.Base.metadata.create_all(bind=database.engine)
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
 def health_check():
-    return "hello world"
+    return {'msg': "hello world"}
 
 
 # app.include_router(api.router)
