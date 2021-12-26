@@ -1,13 +1,15 @@
 import uvicorn
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from devtools import debug
+from sqlalchemy.orm import Session
 
 from app import models
 from app import database
 
 # from app import api
+# from sqlalchemy import or_, and_
 
 
 app = FastAPI()
@@ -36,7 +38,13 @@ def health_check():
     return {'msg': "hello world"}
 
 
+@app.get('/users')
+def read_users(conn: Session = Depends(database.get_conn)):
+    debug('/users')
+    return conn.query(models.User).all()
+
+
 # app.include_router(api.router)
 
 if __name__ == "__main__":
-    uvicorn.run("telbot.main:app", reload=True)
+    uvicorn.run("app.main:app", reload=True)

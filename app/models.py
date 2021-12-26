@@ -31,8 +31,11 @@ class User(IDMixin, DateTimeMixin, Base):
     __tablename__ = "user"
 
     email = Column(String(255), unique=True, index=True)
-    password = Column(String(255))
+    username = Column(String(10), nullable=False)
+    nickname = Column(String(20))
+    password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
+    gender = Column(String(1))
 
     def __repr__(self):
         return f'<User> {self.username}'
