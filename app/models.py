@@ -7,6 +7,7 @@ from sqlalchemy import (
     func,
     Text,
     ForeignKey,
+    Table,
 )
 from app.database import Base
 from sqlalchemy.orm import relationship
@@ -43,7 +44,6 @@ class User(IDMixin, DateTimeMixin, Base):
     # 참조할 table.column(PK)
     role_id = Column(Integer, ForeignKey('role.id'))
 
-
     def __repr__(self):
         return f'<User> {self.username}'
 
@@ -72,3 +72,35 @@ class Child(IDMixin, Base):
     gender = Column(String(1))
 
     parent_id = Column(Integer, ForeignKey('parent.id'))
+
+
+class Member(IDMixin, Base):
+    __tablename__ = 'member'
+    name = Column(String(20))
+
+    # N:M
+    projects = relationship('Project', secondary='member_project', backref='member', lazy='dynamic')
+
+    def __repr__(self):
+        return f'{self.name}'
+
+
+class Project(IDMixin, Base):
+    __tablename__ = 'project'
+    name = Column(String(20))
+    dead_line = Column(DateTime)
+
+    # N:M
+    members = relationship('Member', secondary='member_project', backref='project', lazy='dynamic')
+
+    def __repr__(self):
+        return f'{self.name}'
+
+
+# N:M Many to Many
+# Member - Project
+association_table = Table('member_project',
+                          Base.metadata,
+                          Column('member_id', Integer, ForeignKey('member.id')),
+                          Column('project_id', Integer, ForeignKey('project.id'))
+                          )

@@ -249,3 +249,76 @@ conn.commit()
 for child in p1.children.all():
   print(child.id, child.name)
 ```
+
+### Many To Many (M:N) 관계 
+class Member
+    projects = relationship(
+            '참조할 클래스명', 
+            secondary="association_table 명", 
+            backref='참조할 클래스가 참조할 테이블명(자기자신)',
+            lazy='dynamic'
+            )
+
+class Project
+    members = relationship(
+    '참조할 클래스명', 
+    secondary="association_table 명", 
+    backref='참조할 클래스가 참조할 테이블명(자기자신)',
+    lazy='dynamic'
+    )
+
+association_table = sqlalchemy.Table(
+                        "member_project",
+                        Base.metadata,
+                        Column('컬럼명(member_id)', Integer, ForeignKey('member.id')),
+                        Column('컬럼명(project_id)', Integer, ForeignKey('project.id'))
+)
+
+```shell
+from app import database, models
+conn = next(database.get_conn())
+Project = models.Project
+Member = models.Member
+
+m1 = Member(name='m1')
+m2 = Member(name='m2')
+m3 = Member(name='m3')
+m4 = Member(name='m4')
+conn.add_all([m1, m2, m3, m4])
+conn.commit()
+
+p1 = Project(name='p1')
+p2 = Project(name='p2')
+conn.add_all([p1, p2])
+conn.commit()
+
+
+p1.members.append(m1)
+p1.members.append(m2)
+p1.members.append(m3)
+conn.commit()
+
+p2.members.append(m1)
+p2.members.append(m3)
+p2.members.append(m4)
+conn.commit()
+
+
+m1.projects.all()
+# [p1, p2]
+
+m2.projects.all()
+# [p1]
+
+m3.projects.all()
+# [p1, p2]
+
+
+
+p1.members.all()
+# [m1, m2, m3]
+
+p2.members.all()
+# [m4, m3, m1]  # 순서가 입력 순서와 다르다.
+
+```
