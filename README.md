@@ -15,6 +15,17 @@ ipython
   $ conn.query(models.User).all()
 ```
 
+```shell
+# setup 
+a = User(email='a@gmail.com', username='aaa', password='1234')
+b = User(email='b@daum.com', username='daum', password='1234')
+spring = User(email='spirng@naver.com', username='spring', password='1234')
+summer = User(email='summer@naver.com', username='summer', password='1234')
+fall = User(email='fall@naver.com', username='fall', password='1234')
+winter = User(email='winter@naver.com', username='winter', password='1234')
+
+```
+
 ## 조회하기
 
 ```shell
@@ -22,7 +33,9 @@ conn.query(models.User).all()  #  전체조회
 conn.query(models.User).first()  # 첫번째 
 conn.query(models.User).get(1) # id 로 조회  
 conn.query(models.User).filter_by(id=1).first() # id 로 조회  
-conn.query(models.User).filter_by(username='park').first() # id 로 조회  
+conn.query(models.User).filter_by(username='park').first() # id 로 조회
+conn.query(models.User).filter(User.id==1).first()
+  
 ```
 
 ## 삭제
@@ -181,4 +194,58 @@ conn.query(User).order_by(User.username.desc()).filter(User.gender=='m').all()
 # Out[69]: [<User> winter, <User> u2, <User> park, <User> bbb, <User> aaa]
 
 
+```
+
+## LIMIT, OFFSET
+```shell
+conn.query(User).limit(3).all()
+conn.query(User).offset(1).limit(2).all()
+
+```
+
+## count()
+```shell
+conn.query(User).count()
+conn.query(User).filter(User.email.like('%naver%')).count()
+
+```
+
+## Relationship
+### One to Many(1:N)
+class Parent (부모테이블, 1)
+  id
+  username
+  children = relationship(
+            '참조할 클래스명',
+            '참조할 클래스명에서 참조할 테이블명',
+             lazy='dynamic'
+)
+class Child (자식테이블, N)
+  id,
+  name,
+  parent_id = Column(Integer, 
+                    ForeignKey('참조할 테이블명.pk')
+)
+
+```shell
+Parent = models.Parent
+Child = models.Child
+p1 = Parent(username='p1')
+p2 = Parent(username='p2')
+p3 = Parent(username='p3')
+conn.add_all([p1, p2, p3])
+conn.commit()
+c1 = Child(name='c1', age=1)
+c2 = Child(name='c2', age=2)
+c3 = Child(name='c3', age=3)
+conn.add_all([c1, c2, c3])
+conn.commit()
+
+c1.parent_id = p1.id
+c2.parent_id = p1.id
+c3.parent_id = p1.id
+conn.commit()
+
+for child in p1.children.all():
+  print(child.id, child.name)
 ```

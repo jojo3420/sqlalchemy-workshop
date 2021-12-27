@@ -19,7 +19,6 @@ app.add_middleware(
     allow_origins=[
         "http://127.0.0.1",
         "http://localhost",
-        " https://0101-49-166-116-160.ap.ngrok.io",
     ],
     allow_credentials=True,
     allow_methods=["OPTION", "GET", "POST", "DELETE"],
