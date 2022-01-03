@@ -104,3 +104,22 @@ association_table = Table('member_project',
                           Column('member_id', Integer, ForeignKey('member.id')),
                           Column('project_id', Integer, ForeignKey('project.id'))
                           )
+
+
+
+class Human(IDMixin, Base):
+    __tablename__ = 'human'
+    name = Column(String(25))
+    age = Column(Integer)
+    human_info = relationship('HumanInfo', back_populates='human', uselist=False)
+
+
+class HumanInfo(IDMixin, Base):
+    __tablename__ = 'human_info'
+    address = Column(String(200))
+    zipcode = Column(String(5))
+    human_id = Column(Integer, ForeignKey('human.id'))
+
+    human = relationship('Human', back_populates='human_info')
+
+

@@ -5,14 +5,18 @@ python sqlalchemy orm module workshop
 ## database test
 
 ```shell
-ipython
-  $ from app import database
-  $ from app import models 
-  $ 
-  $ models.Base.metadata.create_all(bind=database.engine)
-  $ 
-  $ conn = next(database.get_conn())
-  $ conn.query(models.User).all()
+pip intall ipython
+
+```
+
+```shell
+from app import database
+from app import models 
+
+models.Base.metadata.create_all(bind=database.engine)
+
+conn = next(database.get_conn())
+conn.query(models.User).all()
 ```
 
 ```shell
@@ -197,6 +201,7 @@ conn.query(User).order_by(User.username.desc()).filter(User.gender=='m').all()
 ```
 
 ## LIMIT, OFFSET
+
 ```shell
 conn.query(User).limit(3).all()
 conn.query(User).offset(1).limit(2).all()
@@ -204,6 +209,7 @@ conn.query(User).offset(1).limit(2).all()
 ```
 
 ## count()
+
 ```shell
 conn.query(User).count()
 conn.query(User).filter(User.email.like('%naver%')).count()
@@ -211,20 +217,16 @@ conn.query(User).filter(User.email.like('%naver%')).count()
 ```
 
 ## Relationship
+
 ### One to Many(1:N)
+
 class Parent (부모테이블, 1)
-  id
-  username
-  children = relationship(
-            '참조할 클래스명',
-            '참조할 클래스명에서 참조할 테이블명',
-             lazy='dynamic'
+id username children = relationship(
+'참조할 클래스명',
+'참조할 클래스명에서 참조할 테이블명', lazy='dynamic'
 )
 class Child (자식테이블, N)
-  id,
-  name,
-  parent_id = Column(Integer, 
-                    ForeignKey('참조할 테이블명.pk')
+id, name, parent_id = Column(Integer, ForeignKey('참조할 테이블명.pk')
 )
 
 ```shell
@@ -250,28 +252,19 @@ for child in p1.children.all():
   print(child.id, child.name)
 ```
 
-### Many To Many (M:N) 관계 
-class Member
-    projects = relationship(
-            '참조할 클래스명', 
-            secondary="association_table 명", 
-            backref='참조할 클래스가 참조할 테이블명(자기자신)',
-            lazy='dynamic'
-            )
+### Many To Many (M:N) 관계
 
-class Project
-    members = relationship(
-    '참조할 클래스명', 
-    secondary="association_table 명", 
-    backref='참조할 클래스가 참조할 테이블명(자기자신)',
-    lazy='dynamic'
-    )
+class Member projects = relationship(
+'참조할 클래스명', secondary="association_table 명", backref='참조할 클래스가 참조할 테이블명(자기자신)', lazy='dynamic'
+)
+
+class Project members = relationship(
+'참조할 클래스명', secondary="association_table 명", backref='참조할 클래스가 참조할 테이블명(자기자신)', lazy='dynamic'
+)
 
 association_table = sqlalchemy.Table(
-                        "member_project",
-                        Base.metadata,
-                        Column('컬럼명(member_id)', Integer, ForeignKey('member.id')),
-                        Column('컬럼명(project_id)', Integer, ForeignKey('project.id'))
+"member_project", Base.metadata, Column('컬럼명(member_id)', Integer, ForeignKey('member.id')), Column('컬럼명(project_id)',
+Integer, ForeignKey('project.id'))
 )
 
 ```shell
@@ -322,3 +315,24 @@ p2.members.all()
 # [m4, m3, m1]  # 순서가 입력 순서와 다르다.
 
 ```
+
+## One To One Relationship
+
+```python 
+class Human(IDMixin, Base):
+    __tablename__ = 'human'
+    name = Column(String(25))
+    age = Column(Integer)
+    human_info = relationship('HumanInfo', back_populates='human', uselist=False)
+
+
+class HumanInfo(IDMixin, Base):
+    __tablename__ = 'human_info'
+    address = Column(String(200))
+    zipcode = Column(String(5))
+    human_id = Column(Integer, ForeignKey('human.id'))
+
+    human = relationship('Human', back_populates='human_info')
+
+```
+relationship 속성에 uselist=False 추가 
