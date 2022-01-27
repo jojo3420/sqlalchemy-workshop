@@ -46,9 +46,10 @@ conn.query(models.User).filter(User.id==1).first()
 
 ```shell
 
-park = conn.query(models.User).filter_by(username=park)  #  전체조
-if park:
-  conn.delete(park)
+user = conn.query(models.User).filter_by(username=park).first()  # 
+# user = conn.query(models.User).get(id) 
+if user:
+  conn.delete(user)
   conn.commit()
 ```
 
